@@ -10,8 +10,9 @@
 # poster, face_client, httplib2, simplejson
 # Install poster from http://pypi.python.org/pypi/poster/0.4
  
-import os, simplejson, httplib2, sched, time
+import os, httplib2, sched, time, simplejson as json
 import face_client
+import pprint # not required, get rid of later
 
 # Get the app access token from Facebook 
 def getFacebookAccessToken(app_id, secret):
@@ -21,11 +22,18 @@ def getFacebookAccessToken(app_id, secret):
 
 
 def getFriendsUrl(user):
-    token = 'AAAAAAITEghMBAJgkxeziB6WzqgBQDHJ6OXNWx6VCw7Ic6TTZCp2MszNY9wir9cZAN6xKPxRFDeQgm3hmJCLwMBEe7AbwqWnN6Af0sEfGnmkrd9zZAER'
+    # TODO: This token must be generated.
+    # Meantime: get it from http://developers.facebook.com/docs/reference/api/ logged in as mrnightmarket user
+    # and then follow instructions at http://itslennysfault.com/get-facebook-access-token-for-graph-api to slurp it up
+    # when this thing has a domain.
+    token = 'AAAAAAITEghMBAP53uwyNmbd997sKimHsZBdTLTPQJG2c9I6zDsgXuLrTJgkIm30aos9LLbU8IvHXiZCZA0LAZB65zLKxPCKiWG3XK6pZBR6ZCGHAlztFmj'
     base = 'https://graph.facebook.com/%s/friends?access_token=%s&limit=5000&offset=0'
     return base % (user, token)
 
-path = '/Users/alacenski/Documents/Projects/Face/bin' # change this to run in the current directory
+# remove
+pp = pprint.PrettyPrinter(indent=4)
+
+path = '/Users/alacenski/Documents/Projects/Face/bin' # TODO: change this to run in the current directory
 knownFiles = []
 fb = {
     'login':'mrnightmarket@stupidthing.org',
@@ -45,14 +53,16 @@ faceApi = {
 http = httplib2.Http()
 # Set up face.com client
 faceClient = face_client.FaceClient(faceApi['key'], faceApi['password'])
-friendsJsonUrl = getFriendsUrl(fb['username'])
-result = http.request(friendsJsonUrl)
-
-# stuck here, trying to load json result into a python obj
-friendsJson = simplejson.load(result[1]);
-
 
 # Reload the LHNM Facebook user's friend list to keep training the face checker
+friendsJsonUrl = getFriendsUrl(fb['username'])
+result, content = http.request(friendsJsonUrl)
+friends = json.loads(content)['data'] # Get just the friends 'data' object from response JSON
+pp.pprint(friends) # yay
+# start downloading people's usericons
+for friend in friends:
+#    fData = json.loads(friend)
+    print friend['id']
 
 # Every second
 # capture currentFiles as current return value of os.listdir(path)
@@ -69,8 +79,8 @@ new = [fname for fname in currentFiles if fname not in kf]
 # the 'new' list SHOULD only have one filename in it, as this update should run more slowly than real time 
 #for fname in new:
     
-img = new[0]
-print img
+#img = new[0]
+#print img
 
 # finally, track that these files are done
 knownFiles = currentFiles
