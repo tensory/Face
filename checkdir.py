@@ -1,4 +1,4 @@
-#!/Library/Frameworks/Python.framework/Versions/2.7/bin/python
+# #!/Library/Frameworks/Python.framework/Versions/2.7/bin/python
 
 # checkdir.py
 # by tensory 
@@ -10,16 +10,23 @@
 # poster, face_client, httplib2, simplejson
 # Install poster from http://pypi.python.org/pypi/poster/0.4
  
-import os, httplib2, sched, time, simplejson as json
+import os, sched, time, urlparse
+import httplib2, simplejson as json
 import face_client
 import pprint # not required, get rid of later
 
 # Get the app access token from Facebook 
-def getFacebookAccessToken(app_id, secret):
+def getAppAccessToken(app_id, secret):
     url = 'https://graph.facebook.com/oauth/access_token?client_id=%s&client_secret=%s&grant_type=client_credentials' % (app_id, secret)
     response, content = httplib2.Http().request(url)
     return content
 
+def getUserAccessToken(app_id, redirect, state, http):
+    scopes = ['friends_photos', 'friends_photo_video_tags', 'offline_access']
+    url = 'https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s&scope=%s&state=%s'
+    url = url % (app_id, redirect, ','.join(scopes), state)
+    print http.request(url)
+    return ''
 
 def getFriendsUrl(user):
     # TODO: This token must be generated.
@@ -38,7 +45,8 @@ knownFiles = []
 fb = {
     'login':'mrnightmarket@stupidthing.org',
     'password':'QZ2YHcwHfi2DBJSPJNhE',
-    'username':'mrnightmarket'
+    'username':'mrnightmarket',
+    'domain':'http://www.stupidthing.org'
 }
 
 fbApi = {
@@ -54,15 +62,21 @@ http = httplib2.Http()
 # Set up face.com client
 faceClient = face_client.FaceClient(faceApi['key'], faceApi['password'])
 
+# Get API access token
+state = 'foo'
+token = getUserAccessToken(fbApi['app_id'], fb['domain'], state, http)
+
 # Reload the LHNM Facebook user's friend list to keep training the face checker
-friendsJsonUrl = getFriendsUrl(fb['username'])
-result, content = http.request(friendsJsonUrl)
-friends = json.loads(content)['data'] # Get just the friends 'data' object from response JSON
-pp.pprint(friends) # yay
+#friendsJsonUrl = getFriendsUrl(fb['username'])
+#result, content = http.request(friendsJsonUrl)
+#friends = json.loads(content)['data'] # Get just the friends 'data' object from response JSON
+#pp.pprint(friends) # yay
+
+
 # start downloading people's usericons
-for friend in friends:
+#for friend in friends:
 #    fData = json.loads(friend)
-    print friend['id']
+#    print friend['id']
 
 # Every second
 # capture currentFiles as current return value of os.listdir(path)
