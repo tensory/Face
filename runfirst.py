@@ -30,7 +30,7 @@ fbApi = {
 }
 
 def getUserAccessToken(app_id, redirect, state, http):
-    scopes = ['friends_photos', 'friends_photo_video_tags', 'offline_access']
+    scopes = ['user_photo_video_tags', 'friends_photo_video_tags', 'offline_access']
     url = 'https://www.facebook.com/dialog/oauth?type=user_agent&client_id=%s&redirect_uri=%s&scope=%s&state=%s'
     return url % (app_id, redirect, ','.join(scopes), state)
 
