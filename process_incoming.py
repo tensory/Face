@@ -77,10 +77,10 @@ def process_one():
                 print "Found! Reading JSON from URL", url
                 content = urllib2.urlopen(url)
                 data = json.load(content)
-
+                
                 html = "".join(["<tr>",
-                    "<td><img src='%s'></td>" % file,
-                    "<td><img src='%s'></td>" % data["picture"],
+                    "<td><a href='%s'><img src='%s' style='width: 200px; height: 200px;'></a></td>" % (data['link'], file),
+                    "<td><a href='%s'><img src='%s' style='width: 200px; height: 200px;'></a></td>" % (data['link'], data["picture"]),
                     "<td><a href='%s'>%s</a></td>" % (data["link"], data["name"]),
                     "</tr>\n"])
 
