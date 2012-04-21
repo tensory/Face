@@ -29,7 +29,9 @@ friends_json_url = getFriendsUrl(user, token)
 result, content = http.request(friends_json_url)
 friends = simplejson.loads(content)['data'] # Get just the friends 'data' object from response JSON
 
-os.delete(outfile) #get rid of old copies
+if os.path.isfile(outfile):
+	os.remove(outfile) # Get rid of old copies
+
 handle = open(outfile, "w")
 
 for friend in friends:
@@ -37,4 +39,5 @@ for friend in friends:
 		continue
 	handle.writelines(friend['id'] + '\n')
 
+print "Done"
 handle.close()
