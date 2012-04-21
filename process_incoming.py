@@ -78,11 +78,11 @@ def process_one():
                 content = urllib2.urlopen(url)
                 data = json.load(content)
 
-                html = "".join("<tr>",
+                html = "".join(["<tr>",
                     "<td><img src='%s'></td>" % file,
                     "<td><img src='%s'></td>" % data["picture"],
                     "<td><a href='%s'>%s</a></td>" % (data["link"], data["name"]),
-                    "</tr>\n")
+                    "</tr>\n"])
 
                 print "Done, written out to ", reversed_html
                 open(reversed_html, "a").write(html)
@@ -90,7 +90,6 @@ def process_one():
                 print "Oops, failed:", str(e)
         else:
             print "No match found"
-            continue
 
         lines = open(reversed_html).readlines()
         lines.reverse()
@@ -111,10 +110,10 @@ if __name__ == '__main__':
     print
 
     while True:
-        try:
-            process_one()
-        except Exception as e:
-            print "Oops, something died?", str(e)
+        #try:
+        process_one()
+        #except Exception as e:
+        #print "Oops, something died?", str(e)
 
         print "Sleeping..."
         print
