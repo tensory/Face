@@ -107,10 +107,6 @@ processed_dir = os.path.realpath(os.path.dirname(__file__) + "/processed")
 print "Using incoming directory of", incoming_dir
 print "Using processed directory of", processed_dir
 
-sys.exit()
-
-knownFiles = []
-
 fb = { 
     'login':'mrnightmarket@stupidthing.org',
     'password':'QZ2YHcwHfi2DBJSPJNhE',
