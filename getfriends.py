@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # getfriends.py
 # by tensory
 #
@@ -16,6 +17,7 @@ user = 'mrnightmarket'
 fb_public_query = 'https://graph.facebook.com/%s?fields=id,picture&type=large'
 http = httplib2.Http()
 pp = pprint.PrettyPrinter(indent=4)
+outfile = "friends_of_mrnightmarket.txt"
 
 if (len(sys.argv) > 1):
     token = sys.argv[1]
@@ -25,6 +27,14 @@ else:
     
 friends_json_url = getFriendsUrl(user, token)
 result, content = http.request(friends_json_url)
-friends = json.loads(content)['data'] # Get just the friends 'data' object from response JSON
+friends = simplejson.loads(content)['data'] # Get just the friends 'data' object from response JSON
 
-pp.pprint(friends)
+os.delete(outfile) #get rid of old copies
+handle = open(outfile, "w")
+
+for friend in friends:
+	if not friend['id']:
+		continue
+	handle.writelines(friend['id'] + '\n')
+
+handle.close()
