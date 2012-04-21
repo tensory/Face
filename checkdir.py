@@ -134,7 +134,7 @@ testPhotoUrl = 'http://sphotos.xx.fbcdn.net/hphotos-ash3/559477_1010017736317978
 userId = extractUserIdByImage(testPhotoUrl, client, faceApi['namespace'])
 
 if (userId):
-    dossier = new Dossier(userId)
+    dossier = Dossier(userId)
     if (dossier.getDossierData() == True):
         dossier.generateFile()
     
