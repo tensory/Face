@@ -42,7 +42,7 @@ class Dossier:
         Generate a new file from the current dossier state.
         '''
         outFile = "index.html"
-        path = ""
+        incoming_dir = ""
         inFile = "template.html"
         i = open(inFile, "r")
         o = open(outFile, "w")
@@ -101,8 +101,11 @@ else:
 # remove
 pp = pprint.PrettyPrinter(indent=4)
 
-path = os.path.realpath(os.path.dirname(__file__) + "/bin")
-print "Reading pictures from", path
+incoming_dir = os.path.realpath(os.path.dirname(__file__) + "/incoming")
+processed_dir = os.path.realpath(os.path.dirname(__file__) + "/processed")
+# XXX create directories if not exist
+print "Using incoming directory of", incoming_dir
+print "Using processed directory of", processed_dir
 
 knownFiles = []
 
@@ -166,7 +169,7 @@ def loop():
     spit out a new html page
     """
 
-    currentFiles = os.listdir(path)
+    currentFiles = os.listdir(incoming_dir)
     print "Current files:", currentFiles
 
     kf = set(knownFiles)
