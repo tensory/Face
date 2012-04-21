@@ -14,8 +14,51 @@
 import sys, re, os, sched, time, urlparse
 import httplib2, simplejson as json
 import face_client
-import pprint # not required, get rid of later
+import pprint
 
+class Dossier:
+    name = "Dossier"
+    http = httplib2.Http()
+    fbDataBase = 'https://graph.facebook.com/%s?fields=id,link,name,picture&type=large'
+
+    def __init__(self, userId):
+        self.userId = userId
+        self.link = ''
+        self.name = ''
+        self.photo = ''
+    
+    def getDossierData(self):
+        response, data = http.request(fbDataBase % self.userId)
+        if (data):
+            self.link = data['link']
+            self.name = data['name']
+            self.photo = data['picture']
+            return True
+        else:
+            return False
+
+    def generateFile(self):
+        '''
+        Generate a new file from the current dossier state.
+        '''
+        outFile = "index.html"
+        path = ""
+        inFile = "template.html"
+        i = open(inFile, "r")
+        o = open(outFile, "w")
+        template = i.read()
+        '''
+        Done reading in the file
+        Do string substitution and write it out
+        If you change the order of the elements in the template, 
+        you must also change it here
+        '''
+        title = "Transcript #" + self.userId
+        custom = template % (title, self.link, self.name, self.photo)
+        o.write(custom)
+        i.close()
+        o.close()
+        
 
 def getFriendsUrl(user, token):
     # TODO: This token must be generated.
@@ -58,7 +101,9 @@ else:
 # remove
 pp = pprint.PrettyPrinter(indent=4)
 
-path = '/Users/alacenski/Documents/Projects/Face/bin' # TODO: change this to run in the current directory
+path = os.path.realpath(os.path.dirname(__file__) + "/bin")
+print "Reading pictures from", path
+
 knownFiles = []
 
 fb = { 
@@ -110,78 +155,37 @@ if False:
 
 # TODO: add user photos as well, see http://developers.facebook.com/docs/reference/api/user/
 
-# # SCAN LOCAL DIRECTORY FOR NEW SNAPSHOT FILES
-# Every second
-# capture currentFiles as current return value of os.listdir(path)
-# find difference between allFiles and currentFiles
-# make API calls to Face on the difference(s)
-# all but most recent difference will be overwritten (this is by design
-# spit out a new html page
 
-# TOD: do this every second:
-currentFiles = os.listdir(path)
-kf = set(knownFiles)
-new = [fname for fname in currentFiles if fname not in kf]
+def loop():
+    """
+    Every second
+    capture currentFiles as current return value of os.listdir(path)
+    find difference between allFiles and currentFiles
+    make API calls to Face on the difference(s)
+    all but most recent difference will be overwritten (this is by design
+    spit out a new html page
+    """
 
-# the 'new' list SHOULD only have one filename in it, as this update should run more slowly than real time 
-#for fname in new:    
-#img = new[0]
-#print img
+    currentFiles = os.listdir(path)
+    print "Current files:", currentFiles
 
-# Now try to recognize a given photo
-testPhotoUrl = 'http://sphotos.xx.fbcdn.net/hphotos-ash3/559477_10100177363179781_22009713_42015310_339035254_n.jpg' # Eric M
-userId = extractUserIdByImage(testPhotoUrl, client, faceApi['namespace'])
+    kf = set(knownFiles)
+    new = [fname for fname in currentFiles if fname not in kf]
 
-if (userId):
-    dossier = Dossier(userId)
-    if (dossier.getDossierData() == True):
-        dossier.generateFile()
-    
-# finally, track that these files are done
-knownFiles = currentFiles
-# end stuff to do every second
+    # the 'new' list SHOULD only have one filename in it, as this update should run more slowly than real time 
+    #for fname in new:    
+    #img = new[0]
+    #print img
 
+    # Now try to recognize a given photo
+    testPhotoUrl = 'http://sphotos.xx.fbcdn.net/hphotos-ash3/559477_10100177363179781_22009713_42015310_339035254_n.jpg' # Eric M
+    userId = extractUserIdByImage(testPhotoUrl, client, faceApi['namespace'])
 
-class Dossier:
-    name = "Dossier"
-    http = httplib2.Http()
-    fbDataBase = 'https://graph.facebook.com/%s?fields=id,link,name,picture&type=large'
-
-    def __init__(self, userId):
-        self.userId = userId
-        self.link = ''
-        self.name = ''
-        self.photo = ''
-    
-    def getDossierData(self):
-        response, data = http.request(fbDataBase % self.userId)
-        if (data):
-            self.link = data['link']
-            self.name = data['name']
-            self.photo = data['picture']
-            return True
-        else:
-            return False
-
-    def generateFile(self):
-        '''
-        Generate a new file from the current dossier state.
-        '''
-        outFile = "index.html"
-        path = ""
-        inFile = "template.html"
-        i = open(inFile, "r")
-        o = open(outFile, "w")
-        template = i.read()
-        '''
-        Done reading in the file
-        Do string substitution and write it out
-        If you change the order of the elements in the template, 
-        you must also change it here
-        '''
-        title = "Transcript #" + self.userId
-        custom = template % (title, self.link, self.name, self.photo)
-        o.write(custom)
-        i.close()
-        o.close()
+    if (userId):
+        dossier = Dossier(userId)
+        if (dossier.getDossierData() == True):
+            dossier.generateFile()
         
+    # finally, track that these files are done
+    knownFiles = currentFiles
+    # end stuff to do every second
