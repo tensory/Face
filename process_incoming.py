@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 #
 # process_incoming.py
 # by tensory, mct
@@ -19,6 +19,7 @@ import time
 
 incoming_dir  = os.path.realpath(os.path.dirname(__file__) + "/incoming")
 processed_dir = os.path.realpath(os.path.dirname(__file__) + "/processed")
+profiles_dir = os.path.realpath(os.path.dirname(__file__) + "/profiles")
 reversed_html = os.path.realpath(os.path.dirname(__file__) + "/reversed.html")
 index_html    = os.path.realpath(os.path.dirname(__file__) + "/index.html")
 
@@ -27,7 +28,7 @@ fbPublicDataBase = 'http://graph.facebook.com/%s?fields=id,link,name,picture&typ
 faceApi = {
     'key':'ebfcff03e728bd6d8c60b53d11cc6a7b',
     'password':'27a6b645c50832cc6c537a6852957f97',
-    'namespace':'surveillancetruck'
+    'namespace':'nighttest'
 }
 
 http = httplib2.Http()
@@ -63,24 +64,41 @@ def process_one():
     """
 
     for file in os.listdir(incoming_dir):
+        if os.path.isfile(processed_dir + "/" + file):
+            print "Skipping already processed file", file
+            continue
+
+        mtime = (os.stat(incoming_dir + "/" + file))[8]
+        if time.time() - mtime < 5:
+            print "Skipping file that isn't yet 5 seconds old:", file
+            continue
+
+        print
         print "Processing incoming file", file
 
-        # xxx -- upload this file somewhere to somewhere that's publicly accessable
-        file_url = 'http://sphotos.xx.fbcdn.net/hphotos-ash3/559477_10100177363179781_22009713_42015310_339035254_n.jpg'
-
+        file_url = 'http://stupid.reforgotten.net/incoming/' + file
         print "Attempting to recognize face in ", file_url
-        userId = extractUserIdByImage(file_url, client, faceApi['namespace'])
+        try:
+            userId = extractUserIdByImage(file_url, client, faceApi['namespace'])
+        except Exception as e:
+            print "Oops, failed:", str(e)
+            userId = False
 
         if userId:
             try:
                 url = fbPublicDataBase % userId
                 print "Found! Reading JSON from URL", url
-                content = urllib2.urlopen(url)
-                data = json.load(content)
+                fd = urllib2.urlopen(url)
+                data = json.load(fd)
+
+                local_profile = profiles_dir + "/" + data["id"] + ".jpg"
+                print "Fetching profile picture to store in", local_profile
+                content = urllib2.urlopen(data["picture"]).read()
+                open(local_profile, "w").write(content)
                 
                 html = "".join(["<tr>",
-                    "<td><a href='%s'><img src='%s' style='width: 200px; height: 200px;'></a></td>" % (data['link'], file),
-                    "<td><a href='%s'><img src='%s' style='width: 200px; height: 200px;'></a></td>" % (data['link'], data["picture"]),
+                    "<td><a href='/incoming/%s'><img src='/incoming/%s' style='width: 200px; height: 200px;'></a></td>" % (file, file),
+                    "<td><a href='%s'><img src='%s' style='width: 200px; height: 200px;'></a></td>" % ("/profiles/" + data['id'] + ".jpg", data['picture']),
                     "<td><a href='%s'>%s</a></td>" % (data["link"], data["name"]),
                     "</tr>\n"])
 
@@ -93,10 +111,23 @@ def process_one():
 
         lines = open(reversed_html).readlines()
         lines.reverse()
-        open(index_html, "w").writelines(lines)
 
-        print "Moving", file, "to", processed_dir
-        os.rename(incoming_dir + "/" + file, processed_dir + "/" + file)
+        fd = open(index_html, "w")
+        fd.write("""
+            <table border=1>
+            <tr>
+            <td>Our Picture</td>
+            <td>Facebook Picture</td>
+            <td>Facebook Profile</td>
+            </tr>
+        \n""")
+        fd.writelines(lines)
+        fd.close()
+
+        print "Marking", file, "as processed in", processed_dir
+        #os.rename(incoming_dir + "/" + file, processed_dir + "/" + file)
+        open(processed_dir + "/" + file, "w").write("done\n")
+
 
 if __name__ == '__main__':
     print "Using incoming directory of", incoming_dir
