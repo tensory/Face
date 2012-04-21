@@ -40,4 +40,4 @@ state = 'irrelevant' # really, since we're not checking it like responsible grow
 print "Requesting Facebook access token for mrnightmarket..."
 print "Copy and paste this URL in a browser to get your token.\n"
 print getUserAccessToken(fbApi['app_id'], fb['domain'], state, http)
-print '\nNow copy the access_token part of the result ONLY, not the code= or expires_in= or any other bits.'
+print '\nNow copy the access_token part of the URL you are redirected to ONLY, not the code= or expires_in= or any other bits.'
