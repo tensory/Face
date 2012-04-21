@@ -51,17 +51,17 @@ for id in sys.argv[1:]:
         print "Field 'picture' missing?  Skipping"
         continue
 
-    #print repr(j)
-
     print "Sending", j['picture'], "to Face.com"
     faceResponse = client.faces_detect(j['picture'])
-
-    #print repr(faceResponse)
 
     for photo in faceResponse['photos']:
         if len(photo['tags']) > 0:
             userTag = [photo['tags'][0]['tid']]
             tag = '%s@%s' % (id, faceApi['namespace'])
             print "Calling tags_save on", tag
-            client.tags_save(tids=userTag, uid=tag, label=j['id'])
-            result = client.faces_train(tag)
+            try:
+                client.tags_save(tids=userTag, uid=tag, label=j['id'])
+                client.faces_train(tag)
+                print "Ok"
+            except Exception as e:
+                print "Failed:", str(e)
