@@ -1,0 +1,30 @@
+# getfriends.py
+# by tensory
+#
+# get friend IDs of friends of mrnightmarket
+
+import sys, os
+import simplejson, httplib2
+import pprint
+
+def getFriendsUrl(user, token):
+    base = 'https://graph.facebook.com/%s/friends?access_token=%s&limit=5000&offset=0'
+    return base % (user, token)
+
+token = ''
+user = 'mrnightmarket'
+fb_public_query = 'https://graph.facebook.com/%s?fields=id,picture&type=large'
+http = httplib2.Http()
+pp = pprint.PrettyPrinter(indent=4)
+
+if (len(sys.argv) > 1):
+    token = sys.argv[1]
+else: 
+    print "Need an API token! :("
+    sys.exit()
+    
+friends_json_url = getFriendsUrl(user, token)
+result, content = http.request(friends_json_url)
+friends = json.loads(content)['data'] # Get just the friends 'data' object from response JSON
+
+pp.pprint(friends)
