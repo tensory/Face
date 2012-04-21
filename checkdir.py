@@ -92,24 +92,23 @@ friendsJsonUrl = getFriendsUrl(fb['username'], token)
 result, content = http.request(friendsJsonUrl)
 friends = json.loads(content)['data'] # Get just the friends 'data' object from response JSON
 
-'''
 # Already ran this. Run again later, but infrequently.
-Populate the namespace.
-for friend in friends:
-    response, data = http.request(fbPublicDataBase % friend['id'])
-    url = json.loads(data)
-    # Upload their photo to the Face namespace
-    faceResponse = client.faces_detect(url['picture'])
-    # Get Face tags
-    for photo in faceResponse['photos']:
-        if (len(photo['tags']) > 0):
-            userTag = [photo['tags'][0]['tid']]
-            ns = '%s@%s' % (friend['id'], faceApi['namespace'])
-            client.tags_save(tids=userTag, uid=ns, label=friend['name'])
-            result = client.faces_train(ns)
+if False:
+    # Populate the namespace.
+    for friend in friends:
+        response, data = http.request(fbPublicDataBase % friend['id'])
+        url = json.loads(data)
+        # Upload their photo to the Face namespace
+        faceResponse = client.faces_detect(url['picture'])
+        # Get Face tags
+        for photo in faceResponse['photos']:
+            if (len(photo['tags']) > 0):
+                userTag = [photo['tags'][0]['tid']]
+                ns = '%s@%s' % (friend['id'], faceApi['namespace'])
+                client.tags_save(tids=userTag, uid=ns, label=friend['name'])
+                result = client.faces_train(ns)
 
-#TODO: add user photos as well, see http://developers.facebook.com/docs/reference/api/user/
-'''
+# TODO: add user photos as well, see http://developers.facebook.com/docs/reference/api/user/
 
 # # SCAN LOCAL DIRECTORY FOR NEW SNAPSHOT FILES
 # Every second
