@@ -1,4 +1,4 @@
-#!/Library/Frameworks/Python.framework/Versions/2.7/bin/python 
+#!/usr/bin/env python
 # change to your local Python
 #
 # checkdir.py
