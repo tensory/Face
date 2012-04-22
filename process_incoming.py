@@ -114,6 +114,11 @@ def process_one():
 
         fd = open(index_html, "w")
         fd.write("""
+            <html>
+            <head>
+            <meta http-equiv="refresh" content="30">
+            </head>
+            <body>
             <table border=1>
             <tr>
             <td>Our Picture</td>
