@@ -65,7 +65,7 @@ def process_one():
 
     for file in os.listdir(incoming_dir):
         if os.path.isfile(processed_dir + "/" + file):
-            print "Skipping already processed file", file
+            #print "Skipping already processed file", file
             continue
 
         mtime = (os.stat(incoming_dir + "/" + file))[8]
@@ -108,6 +108,13 @@ def process_one():
                 print "Oops, failed:", str(e)
         else:
             print "No match found"
+                
+            html = "".join(["<tr>",
+                "<td><a href='/incoming/%s'><img src='/incoming/%s' style='width: 200px; height: 200px;'></a></td>" % (file, file),
+                "<td>&nbsp;",
+                "<td>No match",
+                "</tr>\n"])
+            open(reversed_html, "a").write(html)
 
         lines = open(reversed_html).readlines()
         lines.reverse()
@@ -116,7 +123,7 @@ def process_one():
         fd.write("""
             <html>
             <head>
-            <meta http-equiv="refresh" content="30">
+            <meta http-equiv="refresh" content="10">
             </head>
             <body>
             <table border=1>
@@ -151,6 +158,6 @@ if __name__ == '__main__':
         #except Exception as e:
         #print "Oops, something died?", str(e)
 
-        print "Sleeping..."
-        print
+        #print "Sleeping..."
+        #print
         time.sleep(1)
